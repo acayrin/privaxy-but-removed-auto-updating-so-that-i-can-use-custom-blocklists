@@ -1,0 +1,93 @@
+#!/bin/bash
+IFS=$'\n'
+blocklists=()
+while IFS= read -r line
+do
+  blocklists+=("$line")
+done <<<$(grep -vE '^#|^$|^[[:space:]]]*$' $HOME/.privaxy/blocklist)
+
+excluded_val=""
+while read l
+do
+  excluded_val+="\"$l\", "
+done < $HOME/.privaxy/exclusions
+
+echo "exclusions = [${excluded_val%", "}]
+custom_filters = []
+
+[ca]
+ca_certificate = '''
+-----BEGIN CERTIFICATE-----
+MIIDTDCCAjSgAwIBAgIUPl+X0HkNQ5fgZeLx/oqyj2Uzj2owDQYJKoZIhvcNAQEL
+BQAwPjELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAkNBMRAwDgYDVQQKDAdQcml2YXh5
+MRAwDgYDVQQDDAdQcml2YXh5MB4XDTIzMTEyMDE3MjI0N1oXDTMzMTExNzE3MjI0
+N1owPjELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAkNBMRAwDgYDVQQKDAdQcml2YXh5
+MRAwDgYDVQQDDAdQcml2YXh5MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC
+AQEAoKKexY1WUKE9Slg3CO/2ggKi6pvBRlg7EHUI2KwO3j/2AsutlDol5P+A9KMj
+Yt29wehsxrFieoYHigyXwJevVnbD5nhAn9VxrHTNQQzHx0pgAK1XsEpIGA8+TLDH
+IGLzn4wYLB+EIU4BuRAgi+2JVX0zN/d506eK/HQYUqgiP0zdnfD6dskH5Ipj64qs
+BW1vaM7RvjjKXtzfQzMRmUA8cJI0zF+SBmp3AjrgM0u4rreNXJ+7LJMoCfMmvf3W
+EZo/Y7YlNphNe+1aQuK2xcWbBsLeUIl8fW6gdfMRGAPk6Gcgf/Tm9gadEMJRdI7n
+87d0FPSajY8iPI/sMlb/NyNObQIDAQABo0IwQDAPBgNVHRMBAf8EBTADAQH/MA4G
+A1UdDwEB/wQEAwIBBjAdBgNVHQ4EFgQU7leVSHufPAVeg78j1j/ZGiSshk8wDQYJ
+KoZIhvcNAQELBQADggEBAKCiW3Ewdid+WzcRYAwMtyens/C6wgqbcrvoCRS1qvO1
+LSRfrN2cAD6hqsZeZ6wmsmXRKWdTIWSti8oCCcfAZWoloSO3aMblxihALWmW4YKN
+lo0hTmNUIrKx/0YuFiPfM+QrmQRdJMSH8zCcQUriDPKXc/Rj0Nye50XBZsVRaYXt
+teLg/Tbh0nR5vcWgoUUIGkQHyyfGF5stT0i+RD+gzFZmhVHy+dPR0DOXNrhH6Viu
+tn13E4Ms3pu6DHpOIAjeoUIQ+cjHL8jY/ziywpIvFnUbrWlrd01eHfQuAQY8rhtM
+vJVEuwH7DAAbn7FAnCQ3aK81ZcmfvaJssWEsTcu5xtE=
+-----END CERTIFICATE-----
+'''
+ca_private_key = '''
+-----BEGIN PRIVATE KEY-----
+MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCgop7FjVZQoT1K
+WDcI7/aCAqLqm8FGWDsQdQjYrA7eP/YCy62UOiXk/4D0oyNi3b3B6GzGsWJ6hgeK
+DJfAl69WdsPmeECf1XGsdM1BDMfHSmAArVewSkgYDz5MsMcgYvOfjBgsH4QhTgG5
+ECCL7YlVfTM393nTp4r8dBhSqCI/TN2d8Pp2yQfkimPriqwFbW9oztG+OMpe3N9D
+MxGZQDxwkjTMX5IGancCOuAzS7iut41cn7sskygJ8ya9/dYRmj9jtiU2mE177VpC
+4rbFxZsGwt5QiXx9bqB18xEYA+ToZyB/9Ob2Bp0QwlF0jufzt3QU9JqNjyI8j+wy
+Vv83I05tAgMBAAECggEANEV2wPZDFi3B0gVuszvSzW+qMAnLFOb1IV/UJx2mIPBT
+T4mTzF43opL6FaFYjH13mDfX3bgvQYuHvIZog0VYyxwOl1qePOSp/uJrQDW2dMVh
+BBdkJ3ukhh+/uBj2UzWf7VUbMJB44JWPvfbfgGklfWomVpnzTMqCUbA9kfggXNRU
+S5By2xW7HB9eG+C8c5YsK3tincSSQeU3wJ5d3Wtes2KtCBl0kmmyaIwu4s3XQYBn
+rdzqQKD64d9eFfZlIU9HcS8/0K0EIxXvIZ/PofwSz9HhFyUY+JIIWnpySJb1rDwQ
+URKOTlfLGPq6Xzn3Fpjo/lHO4EbWWP1gRR3XxNHgyQKBgQDVWruO/17GBxYM3mbP
+ILxfby1XpKC3ab+DXo0tlncXBk01fp0VhUznSzG1NvXf6XLL3O9nncHZaU3MJNh4
+r1b6nD9LInCCMO+2l9ewrwLMeyraoIhUlyHk3+Bz9hdUev3jxmWVz+cU9jIMQsU+
+AmLBcrcX+QnZUROfcs/xCWRvSwKBgQDAvkQbmLtCQD4gauf7edjxarDjmjdL5kKH
+KHIlpupS+UUpC3eSkcxImX+hpYlqb8FYMgPTYh+amnkJAJFXPcPrfKVwnIMo5l8P
+7Tj14sM6uk454sebT68VXvbTvSWCMz4EBxiUYp9uKmMYNBzM9sfey08LttsbWrHx
+cFjUMNjOJwKBgBQ8bt25SvvtYCIIVif/Kt7CZMKTUssStJ95MFrKkrEUX+5a+/s2
+kXy+nRBbDicWtVSwt+RUCjbczgw20nFf8BgFCdvOgG1YxuPCsyqG7vUGGaJy53te
+elCDC370MHJK2Bnqj2gOOBS85TJUgvDGuScwAj272TtLfVj6Qs7R3TzRAoGAVv9K
+ZJ5qn3u5zw4SCas05br/fqwkG2kiTDlQVHhjufHzapRXc1vFtls6ha7fOKCax4FD
+wsy+cR0aVprf/13MqeUIE61BcluROvIbTLj+3+op1uzqpcqwv1eu12G/pWYVruG5
+EXj2d1ZAhjM3cLhO/NwNoL73ZQBp4w2Puq8VnO8CgYAaJYU1Ezvye0TnqcFdo9/N
+yG/BydnfDjLbBbmQc2qpAsD7DTStYZG2Mv7kNrL2ee22eHmdXu48PopZnHWEZ8+v
+0fQwy8y0TfKBPQUvnfmoID/h00wc2KrJDkk9Tl1hXMwaeu8WyYpX19fnPbD6le5P
+lp23eZIjxTHRyy914Ix7pw==
+-----END PRIVATE KEY-----
+'''
+" > $HOME/.privaxy/config
+
+download_filter() {
+  [ ! -d "$HOME/.privaxy/filters" ] && mkdir "$HOME/.privaxy/filters"
+  
+  name="$(cksum <<< "${1##*/}" | cut -f 1 -d ' ')"
+  echo "===> Saving $1 to $name"
+  env http_proxy="" https_proxy="" curl -sL "$1" > "$HOME/.privaxy/filters/$name"
+  echo "[[filters]]
+enabled = true
+title = '''${1##*/}'''
+group = 'Ads'
+file_name = '$name'
+" >> $HOME/.privaxy/config
+}
+
+for f in "${blocklists[@]}"
+do
+  download_filter $f &
+  if [[ $(jobs -r -p | wc -l) -ge $(nproc) ]]; then
+    wait -n
+  fi
+done

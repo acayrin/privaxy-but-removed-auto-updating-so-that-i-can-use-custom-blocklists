@@ -71,18 +71,22 @@ lp23eZIjxTHRyy914Ix7pw==
 " > $HOME/.privaxy/config
 
 download_filter() {
-  [ ! -d "$HOME/.privaxy/filters" ] && mkdir "$HOME/.privaxy/filters"
+  filename="$(sha256sum <<< "${1##*/}" | cut -f 1 -d ' ')"
+  filepath="${HOME}/.privaxy/filters/${filename}"
   
-  name="$(cksum <<< "${1##*/}" | cut -f 1 -d ' ')"
-  echo "===> Saving $1 to $name"
-  env http_proxy="" https_proxy="" curl -sL "$1" > "$HOME/.privaxy/filters/$name"
+  echo "===> Saving $1 to $filename"
+  
+  env http_proxy="" https_proxy="" curl -sL "$1" > "$filepath"
+  
   echo "[[filters]]
 enabled = true
-title = '''${1##*/}'''
+title = '''$(cat "$filepath" 2>/dev/null | { grep '! Title' || echo ! Title: ${1##*/}; } | cut -c 10-)'''
 group = 'Ads'
-file_name = '$name'
+file_name = '$filename'
 " >> $HOME/.privaxy/config
 }
+
+rm -rf "$HOME/.privaxy/filters" && mkdir "$HOME/.privaxy/filters"
 
 for f in "${blocklists[@]}"
 do

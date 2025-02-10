@@ -1,3 +1,6 @@
+### Please use [joshrmcdaniel's fork](https://github.com/joshrmcdaniel/privaxy) or [deetungsten'fork](https://github.com/deetungsten/webui-privaxy) instead
+
+### Original README
 ### [Barre/privaxy](https://github.com/Barre/privaxy) with removed auto blocklist updating part so that it can be used with custom blocklists
 
 - `blocklist` includes urls of blocklist
